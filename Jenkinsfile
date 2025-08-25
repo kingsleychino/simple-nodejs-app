@@ -12,25 +12,19 @@ pipeline {
                sh 'npm install'
             }
         }
-    }
 
-    stages {
         stage('Loggin to ECR') {
             steps {
                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 503499294473.dkr.ecr.us-east-1.amazonaws.com'
             }
         }
-    }
 
-    stages {
         stage('Build Docker Image') {
             steps {
                sh 'docker build -t simple-nodejs-app .'
             }
         }
-    }
 
-    stages {
         stage('Tag & Push to ECR') {
             steps {
                sh '''
