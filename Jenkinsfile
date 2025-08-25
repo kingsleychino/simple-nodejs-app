@@ -9,13 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/kingsleychino/simple-nodejs-app']]) 
-               //sh 'npm install'
-            }
-        }
-
-        stage('Loggin to ECR') {
-            steps {
-               sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 503499294473.dkr.ecr.us-east-1.amazonaws.com'
+               sh 'npm install'
             }
         }
 
@@ -28,8 +22,9 @@ pipeline {
         stage('Tag & Push to ECR') {
             steps {
                sh '''
-                    docker tag simple-nodejs-app:latest 503499294473.dkr.ecr.us-east-1.amazonaws.com/simple-nodejs-app:latest
-                    docker push 503499294473.dkr.ecr.us-east-1.amazonaws.com/simple-nodejs-app:latest
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 503499294473.dkr.ecr.us-east-1.amazonaws.com
+                docker tag simple-nodejs-app:latest 503499294473.dkr.ecr.us-east-1.amazonaws.com/simple-nodejs-app:latest
+                docker push 503499294473.dkr.ecr.us-east-1.amazonaws.com/simple-nodejs-app:latest
                '''
             }
         }
