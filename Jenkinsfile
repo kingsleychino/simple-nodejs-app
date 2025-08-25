@@ -9,6 +9,8 @@ pipeline {
         stage('Checkout') {
             steps {
                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/kingsleychino/simple-nodejs-app']])
+               sh 'npm ci'
+               sh 'npm run build'
             }
         }
 
