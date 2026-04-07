@@ -12,18 +12,6 @@ pipeline {
             }
         }
 
-        stage('Install') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Run') {
-            steps {
-                sh 'npm start'
-            }
-        }
-
         stage('Build') {
             steps {
                 sh 'mvn clean install -DskipTests'
