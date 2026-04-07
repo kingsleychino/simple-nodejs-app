@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'
+        nodejs 'NodeJS18' // Must match the name configured in Jenkins > Global Tool Configuration
     }
 
     stages {
@@ -12,29 +12,33 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                sh 'npm install'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                // Outputs JUnit-compatible XML if jest-junit or mocha-junit-reporter is configured
+                sh 'npm test'
             }
         }
 
-        stage('Package') {
+        stage('Build') {
             steps {
-                sh 'mvn package'
+                sh 'npm run build' // Remove if there's no build script in package.json
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            junit '**/target/surefire-reports/*.xml'
+            // Archive any build output or dist folder
+            archiveArtifacts artifacts: '**/dist/**', allowEmptyArchive: true, fingerprint: true
+
+            // Only include this if your test runner outputs JUnit XML
+            junit allowEmptyResults: true, testResults: '**/test-results/*.xml'
         }
     }
 }
