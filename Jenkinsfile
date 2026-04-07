@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JDK17'              // Name of JDK configured in Jenkins
-        maven 'Maven3'            // Name of Maven configured in Jenkins
+        maven 'Maven3'
     }
 
     stages {
