@@ -2,30 +2,40 @@ pipeline {
     agent any
 
     tools {
-        nodejs "NodeJS"   // Make sure you've installed & named a NodeJS tool in Jenkins global config
+        jdk 'JDK17'              // Name of JDK configured in Jenkins
+        maven 'Maven3'            // Name of Maven configured in Jenkins
     }
 
     stages {
         stage('Checkout') {
             steps {
-               checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/kingsleychino/simple-nodejs-app']])
+                git branch: 'main', url: 'https://github.com/kingsleychino/simple-nodejs-app.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-               sh 'docker build -t simple-nodejs-app .'
+                sh 'mvn clean install -DskipTests'
             }
         }
 
-        stage('Tag & Push to ECR') {
+        stage('Test') {
             steps {
-               sh '''
-                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 503499294473.dkr.ecr.us-east-1.amazonaws.com
-                docker tag simple-nodejs-app:latest 503499294473.dkr.ecr.us-east-1.amazonaws.com/simple-nodejs-app:latest
-                docker push 503499294473.dkr.ecr.us-east-1.amazonaws.com/simple-nodejs-app:latest
-               '''
+                sh 'mvn test'
             }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            junit '**/target/surefire-reports/*.xml'
         }
     }
 }
